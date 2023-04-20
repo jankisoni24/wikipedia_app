@@ -14,6 +14,7 @@ import {
   addDoc,
 } from "firebase/firestore";
 import firebaseConfig from "../firebaseConfig";
+import axios from 'axios';
 
 const useFirebase = () => {
     const app = initializeApp(firebaseConfig);
@@ -24,16 +25,24 @@ const useFirebase = () => {
         try {
             const res = await signInWithPopup(auth, googleProvider);
             const user = res.user;
-            const q = query(collection(db, "users"), where("uid", "==", user.uid));
-            const docs = await getDocs(q);
-            if (docs.docs.length === 0) {
-            await addDoc(collection(db, "users"), {
+            const reqBody = {
                 uid: user.uid,
                 name: user.displayName,
                 authProvider: "google",
-                email: user.email,
-            });
+                email: user.email
             }
+            axios.post('http://localhost:3000/api/create_user', reqBody)
+            .then(response => console.log(response));
+            // const q = query(collection(db, "users"), where("uid", "==", user.uid));
+            // const docs = await getDocs(q);
+            // if (docs.docs.length === 0) {
+            // await addDoc(collection(db, "users"), {
+            //     uid: user.uid,
+            //     name: user.displayName,
+            //     authProvider: "google",
+            //     email: user.email,
+            // });
+            // }
         } catch (err) {
             console.error(err);
             alert(err.message);

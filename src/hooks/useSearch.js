@@ -36,8 +36,12 @@ const useSearch = (props) => {
                           [d.getHours(),
                            d.getMinutes(),
                            d.getSeconds()].join(':');
-                addDoc(collection(db, "searches"), {
-                    id: Array.from(Array(28), () => Math.floor(Math.random() * 36).toString(36)).join(''),
+                // addDoc(collection(db, "searches"), {
+                //     id: Array.from(Array(28), () => Math.floor(Math.random() * 36).toString(36)).join(''),
+                //     query: searchQuery,
+                //     created_at: dformat
+                // });
+                addSearch({
                     query: searchQuery,
                     created_at: dformat
                 });
@@ -45,6 +49,11 @@ const useSearch = (props) => {
             .catch((err) => console.log(err));
         }
     },[searchQuery, searchResult]);
+
+    const addSearch = (searchData) => {
+        axios.post('http://localhost:3000/api/create_search', searchData)
+        .then(response => console.log(response));
+    }
 
     return {
         search,

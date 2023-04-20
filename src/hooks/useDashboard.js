@@ -9,6 +9,7 @@ import {
   } from "firebase/firestore";
   import firebaseConfig from "../firebaseConfig";
 import { useEffect, useState } from "react";
+import axios from 'axios';
 
 const useDashboard = () => {
     const app = initializeApp(firebaseConfig);
@@ -34,10 +35,14 @@ const useDashboard = () => {
                 [d1.getHours(),
                  d1.getMinutes(),
                  d1.getSeconds()].join(':');
-            const q = query(collection(db, "searches"), where("created_at", ">=", startOneDay), where('created_at', '<=', endOneDay));
-            const docs = await getDocs(q);
-            const finalPayload = formatPayload(docs.docs);
-            setLastOneDayData(finalPayload);
+            // const q = query(collection(db, "searches"), where("created_at", ">=", startOneDay), where('created_at', '<=', endOneDay));
+            // const docs = await getDocs(q);
+            // const finalPayload = formatPayload(docs.docs);
+            axios.post('http://localhost:3000/api/get_search_records', {
+                startdate: startOneDay,
+                enddate: endOneDay
+            })
+            .then(response => setLastOneDayData(response?.data || []));
         }
         const fetchLastOneHourData = async () => {
             let d = new Date
@@ -55,17 +60,21 @@ const useDashboard = () => {
                 [d1.getHours(),
                  d1.getMinutes(),
                  d1.getSeconds()].join(':');
-            const q = query(collection(db, "searches"), where("created_at", ">=", startOneHour), where('created_at', '<=', endOneHour));
-            const docs = await getDocs(q);
-            const finalPayload = formatPayload(docs.docs);
-            setLastOneHourData(finalPayload);
+            // const q = query(collection(db, "searches"), where("created_at", ">=", startOneHour), where('created_at', '<=', endOneHour));
+            // const docs = await getDocs(q);
+            // const finalPayload = formatPayload(docs.docs);
+            axios.post('http://localhost:3000/api/get_search_records', {
+                startdate: startOneHour,
+                enddate: endOneHour
+            })
+            .then(response => setLastOneHourData(response?.data || []));
         }
 
         fetchLastOneDayData();
         fetchLastOneHourData();
     },[JSON.stringify(lastOneDayData)]);
 
-    const formatPayload = (docs) => {
+    /*const formatPayload = (docs) => {
         var filteredPayload = [];
         docs.forEach((doc) => {
             var data = doc._document.data.value.mapValue.fields;
@@ -77,7 +86,7 @@ const useDashboard = () => {
             filteredPayload.push(obj);
         });
         return filteredPayload;
-    }
+    }*/
     return {
         lastOneDayData,
         lastOneHourData
